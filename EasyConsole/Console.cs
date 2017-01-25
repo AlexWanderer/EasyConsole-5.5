@@ -1,9 +1,10 @@
-﻿using Homans.Console;
+using Homans.Console;
 using Homans.Containers;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Console : MonoBehaviour
 {
@@ -78,6 +79,7 @@ public class Console : MonoBehaviour
         global::Console.instance = this;
         this.lines = new CircularBuffer<string>(this.linesOfHistory, true);
         this.commands = new CircularBuffer<string>(this.commandHistory, true);
+        SceneManager.sceneLoaded += SceneManager_sceneLoaded;
         if (this.printDebug)
         {
             Application.logMessageReceived += this.PrintDebug;
@@ -93,7 +95,23 @@ public class Console : MonoBehaviour
         this.RegisterParser(typeof(string), new global::Console.ParserCallback(this.parseString));
     }
 
-    private void LevelWasLoaded(int id)
+    /*private void OnLevelWasLoaded(int id)
+    {
+        List<string> list = new List<string>();
+        foreach (KeyValuePair<string, global::Console.DirectCommand> current in this.directCommands)
+        {
+            if (!current.Value.instance.IsAlive || current.Value.instance.Target == null)
+            {
+                list.Add(current.Key);
+            }
+        }
+        foreach (string current2 in list)
+        {
+            this.directCommands.Remove(current2);
+        }
+    }*/
+
+    private void SceneManager_sceneLoaded(Scene scene, LoadSceneMode mode)
     {
         List<string> list = new List<string>();
         foreach (KeyValuePair<string, global::Console.DirectCommand> current in this.directCommands)
